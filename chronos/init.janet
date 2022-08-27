@@ -341,8 +341,12 @@
   # TODO implement this
   )
 
-(defn last-weekday [n &opt tdy])
-(defn next-weekday [n &opt tdy])
+(defn last-weekday [n &opt tdy]
+  # TODO implement this
+  )
+(defn next-weekday [n &opt tdy]
+  # TODO implement this
+  )
 
 (defn- set-month-start [d]
   (merge d month-start))
