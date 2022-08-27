@@ -342,11 +342,18 @@
   )
 
 (defn last-weekday [n &opt tdy]
-  # TODO implement this
-  )
+  (default tdy (today))
+  (if (> n 6) (error "Week only has 7 days!"))
+  (if (< n (tdy :week-day))
+      (days-ago (- (tdy :week-day) n) tdy)
+      (days-ago (+ (- 7 n) (tdy :week-day)))))
+
 (defn next-weekday [n &opt tdy]
-  # TODO implement this
-  )
+  (default tdy (today))
+  (if (> n 6) (error "Week only has 7 days!"))
+  (if (> n (tdy :week-day))
+      (days-after (- n (tdy :week-day)) tdy)
+      (days-after (+ n (- 7 (tdy :week-day))) tdy)))
 
 (defn- set-month-start [d]
   (merge d month-start))
