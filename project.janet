@@ -1,6 +1,6 @@
 (declare-project
   :name "chronos"
-  :description "a simple opionated date handling library"
+  :description "A simple opinionated date handling library"
   :dependencies []
   :author "tionis.dev"
   :license "MIT"
