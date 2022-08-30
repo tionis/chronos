@@ -478,8 +478,8 @@
     (peg/match ~(* "today" -1) date_str) tdy
     (peg/match ~(* "tomorrow" -1) date_str) (days-after-local 1 tdy)
     (peg/match ~(* "yesterday" -1) date_str) (days-ago-local 1 tdy)
-    (peg/match ~(* (repeat 4 :d) "-" (repeat 2 :d) "-" (repeat 2 :d) -1) date_str) (from-string date_str)
-    (peg/match ~(* (repeat 2 :d) "-" (repeat 2 :d) "-" (repeat 2 :d) -1) date_str) (from-string date_str)
+    (peg/match ~(* (repeat 4 :d) "-" (repeat 2 :d) "-" (repeat 2 :d) -1) date_str) (merge (from-string date_str) DateTime)
+    (peg/match ~(* (repeat 2 :d) "-" (repeat 2 :d) "-" (repeat 2 :d) -1) date_str) (merge (from-string date_str) DateTime)
     (peg/match ~(* (repeat 2 :d) "-" (repeat 2 :d) -1) date_str) (from-string date_str)
     (peg/match ~(* (between 1 2 :d) -1) date_str) (from-string date_str)
     (peg/match ~(* (some :d) " day" (opt "s") " ago") date_str)
@@ -488,10 +488,10 @@
     (peg/match ~(* "in " (some :d) " day" (opt "s")) date_str)
       (let [days_after (scan-number ((peg/match ~(* "in " (capture (some :d)) " day" (opt "s")) date_str) 0))]
            (days-after-local days_after tdy))
-    (peg/match ~(* "next week" -1) date_str) (:date-format (days-after-local 7 tdy))
-    (peg/match ~(* "last week" -1) date_str) (:date-format (days-ago-local 7 tdy))
-    (peg/match ~(* "next month" -1) date_str) (:date-format (months-after 1 tdy))
-    (peg/match ~(* "last month" -1) date_str) (:date-format (months-ago 1 tdy))
+    (peg/match ~(* "next week" -1) date_str) (days-after-local 7 tdy)
+    (peg/match ~(* "last week" -1) date_str) (days-ago-local 7 tdy)
+    (peg/match ~(* "next month" -1) date_str) (months-after 1 tdy)
+    (peg/match ~(* "last month" -1) date_str) (months-ago 1 tdy)
     (peg/match ~(* (some :d) " months ago" -1) date_str)
       (months-ago (scan-number ((peg/match ~(* (capture (any :d)) " months ago" -1) date_str) 0)) tdy)
     (peg/match ~(* "in " (some :d) " months" -1) date_str)
@@ -503,15 +503,11 @@
     (peg/match ~(* "in " (some :d) " weeks ago") date_str)
       (weeks-ago (scan-number ((peg/match ~(* "in " (capture (some :d)) " weeks") date_str) 0)) tdy)
     (peg/match ~(* "last " (+ ,;week-days-short ,;week-days-long)) date_str)
-      (:date-format (last-weekday
-                      (get-day-num (scan-number ((peg/match 
-                                                    ~(* "last " (capture (+ ,;week-days-short ,;week-days-long)))
-                                                    date_str) 0)))
-                      tdy))
+      (last-weekday (get-day-num ((peg/match ~(* "last " (capture (+ ,;week-days-short ,;week-days-long)))
+                                               date_str) 0))
+                    tdy)
     (peg/match ~(* "next " (+ ,;week-days-short ,;week-days-long)) date_str)
-      (next-weekday
-        (get-day-num (scan-number ((peg/match
-                                      ~(* "next " (capture (+ ,;week-days-short ,;week-days-long)))
-                                    date_str) 0)))
-        tdy)
+      (next-weekday (get-day-num ((peg/match ~(* "next " (capture (+ ,;week-days-short ,;week-days-long)))
+                                              date_str) 0))
+                    tdy)
     (error (string "Could not parse date: " date_str))))
