@@ -469,7 +469,7 @@
      (table/to-struct ret))))
 
 (defn parse-date # TODO precompile PEGs
-  "consumes a date in some semi-natural syntax and returns a struct formatted like {:year :month :day :year-day :month-day :week-day}"
+  "consumes a date in some semi-natural syntax and returns a DateTime struct"
   [date_str &opt tdy]
   (default tdy (today-local))
   (def tdy (merge tdy DateTime))
