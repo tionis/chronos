@@ -22,6 +22,8 @@
    ["January" "February" "March" "April" "May" "June" "July" "August"
     "September" "October" "November" "December"]})
 
+(def week-day-to-num (merge ))
+
 (def Date
   @{:format _format-date
     :epoch os/mktime
@@ -430,7 +432,8 @@
     (and (= 0 (% year 4))
          (not= (% year 100)))))
 
-(defn get-week-number [&opt date]
+(defn get-week-number [&opt date &keys week-start]
+  (default week-start "sun")
   (label weekNo
     (default date (today))
     (def daysInFirstWeek (- 7 ((start-of-year 0 date) :week-day))) # TODO this will probably not work correctly because of differences of start of week between germany and US
@@ -459,7 +462,7 @@
 (def- week-days-long (map string/ascii-lower (week-days :long)))
 (def- week-days-short (map string/ascii-lower (week-days :short)))
 
-(def- get-day-num
+(def- get-day-num # TODO inline the struct
   ((fn []
      (def ret @{})
      (loop [i :range [0 (length week-days-long)]]
@@ -497,7 +500,11 @@
     (peg/match ~(* "in " (some :d) " months" -1) date_str)
       (months-ago (scan-number ((peg/match ~(* "in " (capture (any :d)) " months" -1) date_str) 0)) tdy)
     (peg/match ~(+ ,;week-days-short ,;week-days-long) date_str)
-      (merge tdy {:week-day (get-day-num date_str)})
+      (do (def diff (- (get-day-num date_str) (tdy :week-day)))
+          (cond
+            (= diff 0) tdy
+            (< diff 0) (days-ago-local diff tdy)
+            (> diff 0) (days-after-local diff tdy)))
     (peg/match ~(* (some :d) " weeks ago") date_str)
       (weeks-ago (scan-number ((peg/match ~(* (capture (some :d)) " weeks ago") date_str) 0)) tdy)
     (peg/match ~(* "in " (some :d) " weeks ago") date_str)
@@ -510,4 +517,4 @@
       (next-weekday (get-day-num ((peg/match ~(* "next " (capture (+ ,;week-days-short ,;week-days-long)))
                                               date_str) 0))
                     tdy)
-    (error (string "Could not parse date: " date_str))))
+    (error (string "could not parse date: " date_str))))
